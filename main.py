@@ -324,6 +324,10 @@ if __name__ == "__main__":
             wandb.log({"val_max_perc": earliness_metrics[4]}, step=epoch)
             wandb.log({"val_baseline_loss": val_value_baseline_loss}, step=epoch)
 
+            ## Since we are interested in both F1 score and percentage of input saved, we must consider both metrics when selecting the best model
+            ## If the F1 of the current epoch is better than the current best F1 by more than the tolerance then we save its score as the best score and the model weights
+            ## If it is within +- f1_tolerance from the current best F1 (e.g. +- 0.01) then we only save it if its score is better than the current best score
+            ## This approach implicitly gives priority to F1, but the user can come up with a different weighted metric or way to select the best model weights
             if (f1 - best_val_f1) > model_config['f1_tolerance']:
                 best_score = f1 / (1 - earliness_metrics[0])
                 torch.save(model.state_dict(), model_config['pretrained_framework_path'])
